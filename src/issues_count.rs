@@ -42,10 +42,10 @@ pub async fn issues_count(
     Ok(iss_count)
 }
 
-fn count_from_issues(countMap: &mut HashMap<String, i64>, issues: Vec<Issue>) {
+fn count_from_issues(count_map: &mut HashMap<String, i64>, issues: Vec<Issue>) {
     issues.into_iter().for_each(|issue| {
         issue.assignees.into_iter().for_each(|assignee| {
-            let count = countMap.entry(assignee).or_insert(0);
+            let count = count_map.entry(assignee).or_insert(0);
             *count += 1;
         });
     });
