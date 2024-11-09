@@ -1,0 +1,29 @@
+query IssuesQuery($owner: String!, $proj_num: Int!, $cursor: String!) {
+  organization(login: $owner) {
+    projectV2(number: $proj_num) {
+      id
+      title
+      items(first: 100, after: $cursor) {
+        totalCount
+        nodes {
+          id
+          content {
+            ... on Issue {
+              createdAt
+              closedAt
+              assignees(first: 20) {
+                totalCount
+                pageInfo {
+                  endCursor
+                }
+                nodes {
+                  login
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

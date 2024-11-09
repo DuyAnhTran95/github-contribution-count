@@ -1,0 +1,17 @@
+query ProjectsQuery($owner: String!, $cursor:String!) {
+  organization(login: $owner) {
+    projectsV2(first: 10, after: $cursor) {
+      __typename
+      nodes {
+        __typename
+        number
+        title
+      }
+      pageInfo {
+        endCursor
+        startCursor
+      }
+      totalCount
+    }
+  }
+}
