@@ -1,5 +1,4 @@
-pub mod errors;
-use errors::CmdError;
+use crate::errors::CmdError;
 
 use crate::{
     github::{GhClient, ProjectsClient},
@@ -50,6 +49,22 @@ pub async fn run_interactive(arg: &mut Args, client: &mut GhClient) -> Result<()
                     .map_err(|_| CmdError::InvalidInput)?,
             );
         }
+    }
+
+    if arg.start_date.is_none() {
+        print!("Enter start date (yyyy-mm-dd): ");
+        io::stdout().flush()?;
+        let mut start_date = String::new();
+        io::stdin().read_line(&mut start_date).unwrap();
+        arg.start_date = Some(start_date.trim().to_string());
+    }
+
+    if arg.end_date.is_none() {
+        print!("Enter end date (yyyy-mm-dd): ");
+        io::stdout().flush()?;
+        let mut end_date = String::new();
+        io::stdin().read_line(&mut end_date).unwrap();
+        arg.end_date = Some(end_date.trim().to_string());
     }
 
     Ok(())

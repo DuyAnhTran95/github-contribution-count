@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+chrono = "0.4.38"
 clap = { version = "4.5.20", features = ["derive", "env"] }
 graphql_client = "0.14.0"
 reqwest = { version = "0.12.9", features = ["json", "rustls-tls"], default-features=false }

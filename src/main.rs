@@ -1,5 +1,7 @@
 mod github;
 mod interactive;
+mod issues_count;
+mod errors;
 
 use std::error::Error;
 
@@ -29,6 +31,14 @@ struct Args {
     /// github project number
     #[arg(short, long)]
     project_num: Option<i64>,
+
+    // start date for filtering issues
+    #[arg(short, long)]
+    start_date: Option<String>,
+
+    // end date for filtering issues
+    #[arg(short, long)]
+    end_date: Option<String>,
 }
 
 #[tokio::main]
@@ -43,6 +53,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     if args.interactive {
         interactive::run_interactive(&mut args, &mut gh_client).await?;
     }
+
+    let count = issues_count::issues_count(&args, &gh_client).await?;
+
+    println!("{:?}", count);
 
     Ok(())
 }
