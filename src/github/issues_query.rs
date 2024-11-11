@@ -4,7 +4,7 @@ pub mod issues_query {
     #![allow(dead_code)]
     use std::result::Result;
     pub const OPERATION_NAME: &str = "IssuesQuery";
-    pub const QUERY : & str = "query IssuesQuery($owner: String!, $proj_num: Int!, $cursor: String!) {\n  organization(login: $owner) {\n    projectV2(number: $proj_num) {\n      id\n      title\n      items(first: 100, after: $cursor) {\n \t\t\t\t__typename       \n        totalCount\n        pageInfo {\n          endCursor\n        }\n        nodes {\n          id\n          __typename\n          content {\n            __typename\n            ... on Issue {\n              __typename\n              createdAt\n              closedAt\n              title\n              assignees(first: 20) {\n                __typename\n                totalCount\n                nodes {\n                  login\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}" ;
+    pub const QUERY : & str = "query IssuesQuery($owner: String!, $proj_num: Int!, $cursor: String!) {\n  organization(login: $owner) {\n    projectV2(number: $proj_num) {\n      id\n      title\n      items(first: 100, after: $cursor) {\n \t\t__typename       \n        totalCount\n        pageInfo {\n          endCursor\n        }\n        nodes {\n          id\n          __typename\n          content {\n            __typename\n            ... on DraftIssue {\n              __typename\n              createdAt\n              title\n              creator {\n                __typename\n                login\n              }\n            }\n            ... on Issue {\n              __typename\n              createdAt\n              title\n              author {\n                __typename\n                login\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}" ;
     use super::*;
     use serde::{Deserialize, Serialize};
     #[allow(dead_code)]
@@ -59,30 +59,53 @@ pub mod issues_query {
     #[derive(Deserialize, Debug)]
     #[serde(tag = "__typename")]
     pub enum IssuesQueryOrganizationProjectV2ItemsNodesContent {
-        DraftIssue,
+        DraftIssue(IssuesQueryOrganizationProjectV2ItemsNodesContentOnDraftIssue),
         Issue(IssuesQueryOrganizationProjectV2ItemsNodesContentOnIssue),
         PullRequest,
+    }
+    #[derive(Deserialize, Debug)]
+    pub struct IssuesQueryOrganizationProjectV2ItemsNodesContentOnDraftIssue {
+        #[serde(rename = "createdAt")]
+        pub created_at: DateTime,
+        pub title: String,
+        pub creator: Option<IssuesQueryOrganizationProjectV2ItemsNodesContentOnDraftIssueCreator>,
+    }
+    #[derive(Deserialize, Debug)]
+    pub struct IssuesQueryOrganizationProjectV2ItemsNodesContentOnDraftIssueCreator {
+        pub login: String,
+        #[serde(flatten)]
+        pub on: IssuesQueryOrganizationProjectV2ItemsNodesContentOnDraftIssueCreatorOn,
+    }
+    #[derive(Deserialize, Debug)]
+    #[serde(tag = "__typename")]
+    pub enum IssuesQueryOrganizationProjectV2ItemsNodesContentOnDraftIssueCreatorOn {
+        Bot,
+        EnterpriseUserAccount,
+        Mannequin,
+        Organization,
+        User,
     }
     #[derive(Deserialize, Debug)]
     pub struct IssuesQueryOrganizationProjectV2ItemsNodesContentOnIssue {
         #[serde(rename = "createdAt")]
         pub created_at: DateTime,
-        #[serde(rename = "closedAt")]
-        pub closed_at: Option<DateTime>,
         pub title: String,
-        pub assignees: IssuesQueryOrganizationProjectV2ItemsNodesContentOnIssueAssignees,
+        pub author: Option<IssuesQueryOrganizationProjectV2ItemsNodesContentOnIssueAuthor>,
     }
     #[derive(Deserialize, Debug)]
-    pub struct IssuesQueryOrganizationProjectV2ItemsNodesContentOnIssueAssignees {
-        #[serde(rename = "totalCount")]
-        pub total_count: Int,
-        pub nodes: Option<
-            Vec<Option<IssuesQueryOrganizationProjectV2ItemsNodesContentOnIssueAssigneesNodes>>,
-        >,
-    }
-    #[derive(Deserialize, Debug)]
-    pub struct IssuesQueryOrganizationProjectV2ItemsNodesContentOnIssueAssigneesNodes {
+    pub struct IssuesQueryOrganizationProjectV2ItemsNodesContentOnIssueAuthor {
         pub login: String,
+        #[serde(flatten)]
+        pub on: IssuesQueryOrganizationProjectV2ItemsNodesContentOnIssueAuthorOn,
+    }
+    #[derive(Deserialize, Debug)]
+    #[serde(tag = "__typename")]
+    pub enum IssuesQueryOrganizationProjectV2ItemsNodesContentOnIssueAuthorOn {
+        Bot,
+        EnterpriseUserAccount,
+        Mannequin,
+        Organization,
+        User,
     }
 }
 type DateTime = String;

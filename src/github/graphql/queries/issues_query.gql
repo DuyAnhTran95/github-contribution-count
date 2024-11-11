@@ -4,7 +4,7 @@ query IssuesQuery($owner: String!, $proj_num: Int!, $cursor: String!) {
       id
       title
       items(first: 100, after: $cursor) {
- 				__typename       
+ 		__typename       
         totalCount
         pageInfo {
           endCursor
@@ -14,17 +14,22 @@ query IssuesQuery($owner: String!, $proj_num: Int!, $cursor: String!) {
           __typename
           content {
             __typename
+            ... on DraftIssue {
+              __typename
+              createdAt
+              title
+              creator {
+                __typename
+                login
+              }
+            }
             ... on Issue {
               __typename
               createdAt
-              closedAt
               title
-              assignees(first: 20) {
+              author {
                 __typename
-                totalCount
-                nodes {
-                  login
-                }
+                login
               }
             }
           }

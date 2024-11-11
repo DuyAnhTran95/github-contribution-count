@@ -11,7 +11,6 @@ use github::GhClient;
 #[derive(Parser, Debug)]
 struct Args {
     /// using interactive mode or not (default: true)
-    /// if true all other flag is ignored
     #[arg(short, long)]
     #[clap(default_value = "true")]
     interactive: bool,

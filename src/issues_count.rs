@@ -15,7 +15,7 @@ use crate::{
 pub struct Issue {
     title: String,
     created_at: DateTime<FixedOffset>,
-    assignees: Vec<String>,
+    author: String,
 }
 
 pub async fn issues_count(
@@ -44,10 +44,8 @@ pub async fn issues_count(
 
 fn count_from_issues(count_map: &mut HashMap<String, i64>, issues: Vec<Issue>) {
     issues.into_iter().for_each(|issue| {
-        issue.assignees.into_iter().for_each(|assignee| {
-            let count = count_map.entry(assignee).or_insert(0);
-            *count += 1;
-        });
+        let count = count_map.entry(issue.author).or_insert(0);
+        *count += 1;
     });
 }
 
@@ -93,13 +91,21 @@ async fn get_issues(
             IssuesQueryOrganizationProjectV2ItemsNodesContent::Issue(issue) => {
                 let title = issue.title.clone();
                 let created_at = DateTime::parse_from_rfc3339(&issue.created_at).ok()?;
-                let assignees = issue.assignees.nodes.as_ref()?.iter()
-                    .filter_map(|a| Some(a.as_ref()?.login.clone()))
-                    .collect::<Vec<String>>();
+                let author = issue.author.as_ref()?.login.clone();
                 Some(Issue {
-                    assignees: assignees,
-                    created_at: created_at,
-                    title: title,
+                    author,
+                    created_at,
+                    title,
+                })
+            },
+            IssuesQueryOrganizationProjectV2ItemsNodesContent::DraftIssue(issue) => {
+                let title = issue.title.clone();
+                let created_at = DateTime::parse_from_rfc3339(&issue.created_at).ok()?;
+                let author = issue.creator.as_ref()?.login.clone();
+                Some(Issue {
+                    author,
+                    created_at,
+                    title,
                 })
             },
             _ => None,
